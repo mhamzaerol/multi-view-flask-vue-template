@@ -33,7 +33,7 @@ function request(url, params, type, callback) {
 //     request(url, params, POST_REQUEST, callback);
 // }
 
-function loadData(callback){
+function loadData(callback) {
     const url = `${devApiUrl}/loadData`;
     const params = {};
     request(url, params, GET_REQUEST, callback);

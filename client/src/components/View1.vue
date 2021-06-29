@@ -6,6 +6,7 @@
       <select class="form-control" id="mySelect" @change="selectvis()">
         <option>lollipop plot</option>
         <option>word cloud</option>
+        <option>Fluency Chart</option>
       </select>
     </div>
   </div>

@@ -6,7 +6,7 @@ class Service {
         if (!instance) {
             instance = this;
         }
-        this.selection;
+        // this.selection;
 
 
         return instance;

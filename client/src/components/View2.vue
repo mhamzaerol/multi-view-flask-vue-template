@@ -197,6 +197,162 @@ export default {
               return d.text;
             });
         }
+      } else if(selection == "Fluency Chart") {
+
+        const MIN_SCORE = 0;
+        const MAX_SCORE = 100;
+
+        // This function generates a random number in the range [l, r)
+        function getRandomNumber(l, r) {
+          return l + Math.random() * (r - l);
+        }
+
+        // This function generates a random int in the range [l, r]
+        function getRandomInt(l, r) {
+          return Math.floor(getRandomNumber(l, r + 1));
+        }
+
+        // This function randomly generates a fluency scores list
+        function generateFluencyScoresList() {
+          const MAX_N = 10;
+          let n = getRandomInt(1, MAX_N);
+          let list = [];
+          for(let i = 0; i < n; i++) {
+            list.push(getRandomNumber(MIN_SCORE, MAX_SCORE));
+          }
+          return list;
+        }
+
+        
+        // keeps the fluency scores list
+        let fluencyScores = generateFluencyScoresList();
+
+        // set the dimensions and margins of the graph
+        var margin = { top: 10, right: 10, bottom: 30, left: 30 },
+          width = 450 - margin.left - margin.right,
+          height = 450 - margin.top - margin.bottom;
+        var padding = {top: 30, right: 20, bottom: 30, left: 20};
+
+        // append the svg object to the body of the page
+        var svg = d3
+          .select("#view2svg")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr(
+              "transform",
+              "translate(" + margin.left + "," + margin.top + ")"
+            );
+          
+          // add the x Axis
+          var x = d3.scaleLinear()
+                    .domain([1, fluencyScores.length])
+                    .range([padding.left, width - padding.right])
+          svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x).ticks(fluencyScores.length - 1));
+          
+          // add the y Axis
+          var y = d3.scaleLinear()
+                    .domain([MIN_SCORE, MAX_SCORE])
+                    .range([height - padding.top, padding.bottom]);
+          svg.append("g")
+              .call(d3.axisLeft(y));
+        
+          const radius = 6;
+          const gapBetweenCircles = 5;
+
+          // Plot the area
+          svg.append("path")
+              .datum(fluencyScores.map(function(score, index) { return [index + 1, score]; }))
+              .attr("fill", "none")
+              .attr("opacity", ".8")
+              .attr("stroke", "#000")
+              .attr("stroke-width", 1)
+              .attr("stroke-linejoin", "round")
+              .attr("d",  d3.line()
+                .curve(d3.curveCatmullRom)
+                  .x(function(d) { return x(d[0]); })
+                  .y(function(d) { return y(d[1]); })
+              );
+          
+          let fluencyScoresForLines = [
+            ...fluencyScores.map(function(score, index) { return [[index + 1, score], [index + 1, score - gapBetweenCircles]] }), 
+            ...fluencyScores.map(function(score, index) { return [[index + 1, score], [index + 1, score + gapBetweenCircles]] })
+          ];
+
+          svg.append("g")
+            .selectAll("line")
+            .data(fluencyScoresForLines)
+            .enter()
+            .append("line")
+              .style("stroke", "black")
+              .style("stroke-width", 1)
+                .attr("x1", function(d) { return x(d[0][0]); })
+                .attr("y1", function(d) { return y(d[0][1]); })
+                .attr("x2", function(d) { return x(d[1][0]); })
+                .attr("y2", function(d) { return y(d[1][1]); });
+          
+          svg.append("g")
+              .selectAll(".in-circle")
+              .data(fluencyScores.map(function(score, index) { return [index + 1, score]; }))
+              .enter()
+              .append("circle")
+                .attr("fill", "#EEEEEE")
+                .attr("stroke", "black")
+                .attr("r", radius)
+                .attr("cx", function(d) { return x(d[0]); })
+                .attr("cy", function(d) { return y(d[1]); })
+                .on("mouseover", function(d,i) {
+                  d3.select(this)
+                      .attr("r", radius * 2)
+                  })
+                .on("mouseout", function(d,i) {
+                    d3.select(this)
+                      .attr("r", radius)
+                  })
+
+          svg.append("g")
+              .selectAll(".ext-circle")
+              .data(fluencyScores.map(function(score, index) { return [index + 1, score - gapBetweenCircles]; }))
+              .enter()
+              .append("circle")
+                .attr("class", "ext-circle")
+                .attr("fill", "#C9D9F8")
+                .attr("stroke", "black")
+                .attr("r", radius)
+                .attr("cx", function(d) { return x(d[0]); })
+                .attr("cy", function(d) { return y(d[1]); })
+                .on("mouseover", function(d,i) {
+                  d3.select(this)
+                      .attr("r", radius * 2)
+                  })
+                .on("mouseout", function(d,i) {
+                    d3.select(this)
+                      .attr("r", radius)
+                  });
+
+          svg.append("g")
+              .selectAll(".ext-circle")
+              .data(fluencyScores.map(function(score, index) { return [index + 1, score + gapBetweenCircles]; }))
+              .enter()
+              .append("circle")
+                .attr("class", "ext-circle")
+                .attr("fill", "#ffb6c1")
+                .attr("stroke", "black")
+                .attr("r", radius)
+                .attr("cx", function(d) { return x(d[0]); })
+                .attr("cy", function(d) { return y(d[1]); })
+                .on("mouseover", function(d,i) {
+                  d3.select(this)
+                      .attr("r", radius * 2)
+                  })
+                .on("mouseout", function(d,i) {
+                    d3.select(this)
+                      .attr("r", radius)
+                  })
+              
       }
     },
   },
